@@ -5,6 +5,8 @@ import tornado.web
 import tornado.escape
 import tornado.template
 
+import os
+
 from google.appengine.api import users
 # from google.appengine.ext import db
 # from google.appengine.api import xmpp
@@ -118,7 +120,7 @@ class EditHook(BaseHandler):
         obj = lib.lookup_token(token)
         if not obj:
             raise tornado.web.HTTPError(404)
-        self.render('edit.html', jid=obj)
+        self.render('edit.html', jid=obj, application_id=os.environ['APPLICATION_ID'])
     
     @authenticated
     def post(self, token):
@@ -185,20 +187,20 @@ class PostHook(BaseHandler):
     
     def get(self, token):
         if not token.lower().startswith('p_'):
-            raise tornado.web.HTTPError(404)
+            raise tornado.web.HTTPError(404,log_message='Not a post token')
         obj = lib.lookup_token(token)
         if not obj or not obj.active:
-            raise tornado.web.HTTPError(404)
+            raise tornado.web.HTTPError(404,log_message='Not active or instantiated token' )
         
         msg = self.render_string(obj.format, post_json=None)
         lib.send(obj.jid, msg)
     
     def post(self, token):
         if not token.lower().startswith('p_'):
-            raise tornado.web.HTTPError(404)
+            raise tornado.web.HTTPError(404,log_message='Not a post token')
         obj = lib.lookup_token(token)
         if not obj or not obj.active:
-            raise tornado.web.HTTPError(404)
+            raise tornado.web.HTTPError(404,log_message='Not active or instantiated token')
         
         msg = self.render_string(obj.format, json_decode = tornado.escape.json_decode)
         lib.send(obj.jid, msg)

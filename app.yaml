@@ -1,5 +1,5 @@
-application: partychat-hooks
-version: 1
+application: partychat-hooks-harper
+version: 3
 runtime: python
 api_version: 1
 

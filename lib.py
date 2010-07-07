@@ -5,6 +5,8 @@ import base64
 import logging
 import re
 from google.appengine.api import xmpp
+import os 
+
 
 def match_command(command, body):
     if command == '*' or \
@@ -50,8 +52,9 @@ def get_user_jids(username):
     return q.fetch(50)
 
 def send(jid, msg):
-    from_address = '%s@partychat-hooks.appspotchat.com' % jid.token.lower()
+    from_address = '%s@%s.appspotchat.com' % (jid.token.lower(), os.environ['APPLICATION_ID'])
     try:
+        logging.debug('sending message "%s" to %s from %s' % (msg, jid.jid, from_address))
         output = xmpp.send_message(jid.jid, msg, from_address)
         logging.info('sent msg; output was %s' % str(output))
         return output
